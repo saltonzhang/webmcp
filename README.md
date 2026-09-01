@@ -41,11 +41,11 @@
 
 脚本不会覆盖同事已有的同名 MCP 配置；需要更新时先执行 `codex mcp remove <名称>`，再重新运行脚本。安装完成后重启 Codex。
 
-运行前，在浏览器打开该用例的 `pagePath` 对应页面，并确认 `webmcp_list_sources` 与 `webmcp_list_tools` 能看到该页面。relay 会从所有已连接页面中选择匹配来源，页面无需保持为当前激活标签。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
+执行器会先检查该用例的 `pagePath` 是否已经连接 relay；没有来源时，会调用 `webmcp_open_page` 打开目标页面并等待最多 10 秒完成工具注册。relay 会从所有已连接页面中选择匹配来源，页面无需保持为当前激活标签。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
 
 自然语言执行也遵循同一预检：AI 先查 relay 来源；没有来源时仅使用 `webmcp_open_page` 打开目标页并重试一次。若仍没有来源，AI 会报告 relay 阻断，不会自动退回 Browser skill、DOM 读取或 Playwright。
 
-常见的 `Falling back from WebSockets to HTTPS transport` 超时表示页面没有成功连上本机 relay。先确认：已运行安装脚本并重启 Codex、页面 URL 属于 `config/environments.json` 的 origin、`webmcp_list_sources` 能返回该页面；这三项未成立前不要开始业务步骤。
+常见的 `Falling back from WebSockets to HTTPS transport` 超时表示页面没有成功连上本机 relay。执行器会自动尝试打开一次页面；若 10 秒后仍无法发现来源，再确认：已运行安装脚本并重启 Codex、页面 URL 属于 `config/environments.json` 的 origin、浏览器未拦截本机 loopback 连接。未连通前不要开始业务步骤。
 
 > 账号、密码、Token 等敏感内容只放在本机 `.env`，不要写入 `environments.json` 或提交到 Git。
 

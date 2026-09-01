@@ -123,6 +123,10 @@ function hasSamePage(sourceUrl, expectedUrl) {
   return source.origin === expected.origin && source.pathname === expected.pathname;
 }
 
+function delay(milliseconds) {
+  return new Promise((resolveDelay) => setTimeout(resolveDelay, milliseconds));
+}
+
 const client = new McpClient();
 let failed = false;
 
@@ -134,23 +138,36 @@ try {
   });
   client.notify("notifications/initialized", {});
 
-  const tools = (await client.request("tools/list", {})).tools;
-  const sources = unwrapToolResult(await client.request("tools/call", {
+  const targetUrl = testCase.pagePath ? new URL(testCase.pagePath, environment.baseUrl).href : environment.baseUrl;
+  const readSources = async () => unwrapToolResult(await client.request("tools/call", {
     name: "webmcp_list_sources",
     arguments: {}
   })).sources;
+  const findMatchingSources = (sources) => sources
+    .filter((source) => source.origin === environment.origin && hasSamePage(source.url, targetUrl))
+    .sort((left, right) => (right.lastSeenAt ?? 0) - (left.lastSeenAt ?? 0));
+
+  let matchingSources = findMatchingSources(await readSources());
+  if (matchingSources.length === 0) {
+    console.log(`OPEN ${targetUrl}`);
+    await client.request("tools/call", {
+      name: "webmcp_open_page",
+      arguments: { url: targetUrl }
+    });
+    for (let attempt = 0; attempt < 10 && matchingSources.length === 0; attempt += 1) {
+      await delay(1000);
+      matchingSources = findMatchingSources(await readSources());
+    }
+  }
+  if (matchingSources.length === 0) {
+    throw new Error(`blocked: the page did not register with the local relay within 10 seconds: ${targetUrl}`);
+  }
+  const selectedSource = matchingSources[0];
+  const tools = (await client.request("tools/list", {})).tools;
   const relayedTools = unwrapToolResult(await client.request("tools/call", {
     name: "webmcp_list_tools",
     arguments: {}
   })).tools;
-  const targetUrl = testCase.pagePath ? new URL(testCase.pagePath, environment.baseUrl).href : environment.baseUrl;
-  const matchingSources = sources
-    .filter((source) => source.origin === environment.origin && hasSamePage(source.url, targetUrl))
-    .sort((left, right) => (right.lastSeenAt ?? 0) - (left.lastSeenAt ?? 0));
-  if (matchingSources.length === 0) {
-    throw new Error(`blocked: no connected WebMCP page for this case; open ${targetUrl}`);
-  }
-  const selectedSource = matchingSources[0];
   const toolName = (base) => {
     const matches = relayedTools.filter((tool) => (
       (tool.name === base || tool.name.startsWith(`${base}_`))

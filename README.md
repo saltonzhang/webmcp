@@ -85,7 +85,7 @@ npm run test:case -- cases/WEBMCP-BET-001.json --env test1
 
 ## 自然语言执行
 
-除回归用例外，同事可以直接向 AI 发出业务指令。例如：
+除回归用例外，可以直接向 AI 发出业务指令。例如：
 
 ```text
 在 test1 找 Flamengo vs Palmeiras 的 Flamengo 胜，赔率必须为 2.10，下注单设置为 100，但不要提交。

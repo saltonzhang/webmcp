@@ -1,0 +1,63 @@
+{
+  "id": "WEBMCP-BET-001",
+  "name": "Prepare a Flamengo single bet without final placement",
+  "tags": ["sports-bet", "smoke", "non-destructive"],
+  "preconditions": [
+    "One WebMCP test-page source is connected to the local relay.",
+    "Market m1 is active with odds 2.10.",
+    "The test wallet balance is at least 100."
+  ],
+  "steps": [
+    {
+      "tool": "clear_slip",
+      "input": {},
+      "expect": {
+        "ok": true,
+        "slip.selections": [],
+        "slip.promoCode": null
+      }
+    },
+    {
+      "tool": "list_markets",
+      "input": {},
+      "expect": { "ok": true },
+      "contains": {
+        "markets": [
+          { "id": "m1", "odds": 2.1, "suspended": false }
+        ]
+      }
+    },
+    {
+      "tool": "add_selection",
+      "input": { "marketId": "m1" },
+      "expect": {
+        "ok": true,
+        "added": "m1",
+        "slip.selections.length": 1,
+        "slip.selections.0.odds": 2.1
+      }
+    },
+    {
+      "tool": "set_stake",
+      "input": { "stake": 100 },
+      "expect": {
+        "ok": true,
+        "slip.stake": 100,
+        "slip.combinedOdds": 2.1,
+        "slip.potentialPayout": 210,
+        "slip.oddsDrifted": false
+      }
+    },
+    {
+      "tool": "get_slip",
+      "input": {},
+      "expect": {
+        "ok": true,
+        "slip.balance": 200,
+        "slip.stake": 100,
+        "slip.lastReceipt": null,
+        "slip.selections.0.marketId": "m1"
+      }
+    }
+  ]
+}

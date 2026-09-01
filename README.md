@@ -1,4 +1,4 @@
-# WebMCP 回归测试
+# WebMCP 规范和使用方法
 
 这是 Helix WebMCP 测试页的团队回归用例库及轻量执行器。
 

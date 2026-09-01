@@ -117,6 +117,12 @@ function unwrapToolResult(result) {
   return JSON.parse(text);
 }
 
+function hasSamePage(sourceUrl, expectedUrl) {
+  const source = new URL(sourceUrl);
+  const expected = new URL(expectedUrl);
+  return source.origin === expected.origin && source.pathname === expected.pathname;
+}
+
 const client = new McpClient();
 let failed = false;
 
@@ -133,18 +139,31 @@ try {
     name: "webmcp_list_sources",
     arguments: {}
   })).sources;
-  if (!sources.some((source) => source.origin === environment.origin)) {
-    throw new Error(`blocked: no connected WebMCP page for ${environment.origin}; open ${environment.webmcpPageUrl ?? environment.baseUrl}`);
+  const relayedTools = unwrapToolResult(await client.request("tools/call", {
+    name: "webmcp_list_tools",
+    arguments: {}
+  })).tools;
+  const targetUrl = testCase.pagePath ? new URL(testCase.pagePath, environment.baseUrl).href : environment.baseUrl;
+  const matchingSources = sources.filter((source) => source.origin === environment.origin && hasSamePage(source.url, targetUrl));
+  if (matchingSources.length === 0) {
+    throw new Error(`blocked: no connected WebMCP page for this case; open ${targetUrl}`);
   }
   const toolName = (base) => {
-    const matches = tools.filter((tool) => tool.name === base || tool.name.startsWith(`${base}_`));
+    const matches = relayedTools.filter((tool) => (
+      (tool.name === base || tool.name.startsWith(`${base}_`))
+      && tool.sources?.some((source) => matchingSources.some((match) => match.sourceId === source.sourceId))
+    ));
     if (matches.length !== 1) {
       throw new Error(`expected one connected ${base} tool, found ${matches.map((tool) => tool.name).join(", ") || "none"}`);
+    }
+    if (!tools.some((tool) => tool.name === matches[0].name)) {
+      throw new Error(`relay advertised ${matches[0].name}, but it is not callable through MCP tools/list`);
     }
     return matches[0].name;
   };
 
   console.log(`ENV ${arguments_.environment}: ${environment.origin}`);
+  console.log(`PAGE ${targetUrl}`);
   console.log(`CASE ${testCase.id}: ${testCase.name}`);
   for (const [index, step] of testCase.steps.entries()) {
     const result = await client.request("tools/call", {

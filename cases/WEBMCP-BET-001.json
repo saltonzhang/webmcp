@@ -2,6 +2,7 @@
   "id": "WEBMCP-BET-001",
   "name": "Prepare a Flamengo single bet without final placement",
   "tags": ["sports-bet", "smoke", "non-destructive"],
+  "pagePath": "/en/webmcp-test?open_in_browser=true",
   "preconditions": [
     "One WebMCP test-page source is connected to the local relay.",
     "Market m1 is active with odds 2.10.",

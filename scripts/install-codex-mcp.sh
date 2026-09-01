@@ -6,12 +6,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
-INSTALL_PLAYWRIGHT=true
+INSTALL_PLAYWRIGHT=false
 
-if [[ "${1:-}" == "--webmcp-only" ]]; then
-  INSTALL_PLAYWRIGHT=false
+if [[ "${1:-}" == "--with-playwright" ]]; then
+  INSTALL_PLAYWRIGHT=true
 elif [[ $# -gt 0 ]]; then
-  echo "Usage: $0 [--webmcp-only]" >&2
+  echo "Usage: $0 [--with-playwright]" >&2
   exit 2
 fi
 

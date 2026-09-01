@@ -31,11 +31,17 @@
 它会从 `config/environments.json` 读取全部允许的 origin，并安装：
 
 - `webmcp-local-relay`：必需，用于发现并调用页面的 WebMCP 工具；
-- `playwright`：可选的 UI 补充能力；脚本默认安装，也可用 `./scripts/install-codex-mcp.sh --webmcp-only` 跳过。
+- `playwright`：可选的 UI 补充能力；仅在页面未注册所需 WebMCP 工具或需要视觉验收时安装。
+
+需要 Playwright 兜底能力时：
+
+```bash
+./scripts/install-codex-mcp.sh --with-playwright
+```
 
 脚本不会覆盖同事已有的同名 MCP 配置；需要更新时先执行 `codex mcp remove <名称>`，再重新运行脚本。安装完成后重启 Codex。
 
-运行前，在浏览器打开该用例的 `pagePath` 对应页面，并确认 `webmcp_list_sources` 与 `webmcp_list_tools` 能看到该页面。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
+运行前，在浏览器打开该用例的 `pagePath` 对应页面，并确认 `webmcp_list_sources` 与 `webmcp_list_tools` 能看到该页面。relay 会从所有已连接页面中选择匹配来源，页面无需保持为当前激活标签。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
 
 > 账号、密码、Token 等敏感内容只放在本机 `.env`，不要写入 `environments.json` 或提交到 Git。
 

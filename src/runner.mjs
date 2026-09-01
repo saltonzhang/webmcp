@@ -144,14 +144,17 @@ try {
     arguments: {}
   })).tools;
   const targetUrl = testCase.pagePath ? new URL(testCase.pagePath, environment.baseUrl).href : environment.baseUrl;
-  const matchingSources = sources.filter((source) => source.origin === environment.origin && hasSamePage(source.url, targetUrl));
+  const matchingSources = sources
+    .filter((source) => source.origin === environment.origin && hasSamePage(source.url, targetUrl))
+    .sort((left, right) => (right.lastSeenAt ?? 0) - (left.lastSeenAt ?? 0));
   if (matchingSources.length === 0) {
     throw new Error(`blocked: no connected WebMCP page for this case; open ${targetUrl}`);
   }
+  const selectedSource = matchingSources[0];
   const toolName = (base) => {
     const matches = relayedTools.filter((tool) => (
       (tool.name === base || tool.name.startsWith(`${base}_`))
-      && tool.sources?.some((source) => matchingSources.some((match) => match.sourceId === source.sourceId))
+      && tool.sources?.some((source) => source.sourceId === selectedSource.sourceId)
     ));
     if (matches.length !== 1) {
       throw new Error(`expected one connected ${base} tool, found ${matches.map((tool) => tool.name).join(", ") || "none"}`);
@@ -164,6 +167,7 @@ try {
 
   console.log(`ENV ${arguments_.environment}: ${environment.origin}`);
   console.log(`PAGE ${targetUrl}`);
+  console.log(`SOURCE ${selectedSource.sourceId}`);
   console.log(`CASE ${testCase.id}: ${testCase.name}`);
   for (const [index, step] of testCase.steps.entries()) {
     const result = await client.request("tools/call", {

@@ -22,13 +22,18 @@
 - `webmcpScope`：站点接入范围；当前两个环境均为 `site-wide`；
 - `kind`：执行器只允许 `development`、`test` 或 `staging`，拒绝 `production`。
 
-本机 Codex relay 仍需配置一次；`--widget-origin` 的值必须与所选环境的 `origin` 一致：
+本机 Codex MCP 配置不随 Git 仓库自动同步，但已提供一次性安装脚本：
 
-```toml
-[mcp_servers.webmcp-local-relay]
-command = "npx"
-args = ["-y", "@mcp-b/webmcp-local-relay@5.1.0", "--widget-origin", "https://www-test1-br.helix.city"]
+```bash
+./scripts/install-codex-mcp.sh
 ```
+
+它会从 `config/environments.json` 读取全部允许的 origin，并安装：
+
+- `webmcp-local-relay`：必需，用于发现并调用页面的 WebMCP 工具；
+- `playwright`：可选的 UI 补充能力；脚本默认安装，也可用 `./scripts/install-codex-mcp.sh --webmcp-only` 跳过。
+
+脚本不会覆盖同事已有的同名 MCP 配置；需要更新时先执行 `codex mcp remove <名称>`，再重新运行脚本。安装完成后重启 Codex。
 
 运行前，在浏览器打开该用例的 `pagePath` 对应页面，并确认 `webmcp_list_sources` 与 `webmcp_list_tools` 能看到该页面。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
 

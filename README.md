@@ -59,3 +59,15 @@ npm run test:case -- cases/WEBMCP-BET-001.json --env test1
 参见 [WEBMCP-BET-001.json](cases/WEBMCP-BET-001.json)：它目前仍是 Demo 页的兼容性用例，验证 Flamengo 胜、赔率 2.10、下注额 100 的下注单准备过程，但不提交最终订单。后续真实全站用例应按业务页面分别声明 `pagePath`，例如赛事详情、下注单、钱包或订单页。
 
 自然语言探索规范见 [WebMCP 探索规则](docs/webmcp-exploration-policy.md)。
+
+## 自然语言执行
+
+除回归用例外，同事可以直接向 AI 发出业务指令。例如：
+
+```text
+在 test1 找 Flamengo vs Palmeiras 的 Flamengo 胜，赔率必须为 2.10，下注单设置为 100，但不要提交。
+```
+
+AI 会按 [`AGENTS.md`](AGENTS.md) 读取当前页面的 WebMCP 工具，先查询市场与状态，再使用业务 ID 组单和核验结果。涉及最终下注、撤单、Cashout、结算或余额变更时，AI 必须在执行前展示影响并等待确认。
+
+完整规则与示例见 [自然语言执行规范](docs/natural-language-execution.md)。

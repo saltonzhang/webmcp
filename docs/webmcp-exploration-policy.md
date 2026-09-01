@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Natural language is useful for exploratory testing; declared cases are used for repeatable regression. Both must use the same environment boundaries and evidence standard.
+Natural language is a first-class execution mode for exploratory testing and temporary business operations; declared cases are used for repeatable regression. Both must use the same environment boundaries and evidence standard. The detailed AI workflow is in [自然语言执行规范](natural-language-execution.md).
 
 ## Request template
 
@@ -35,4 +35,3 @@ When an exploratory result matters, add a JSON case with:
 | failed | A product response did not match an assertion. |
 | blocked | A prerequisite such as relay, test data, or environment was unavailable. |
 | not run | The case was intentionally skipped before any meaningful step. |
-

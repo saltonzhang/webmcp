@@ -8,11 +8,19 @@
 
 测试环境地址、页面路径和允许的 origin 统一维护在 [`config/environments.json`](config/environments.json)。这是版本化的非敏感配置：修改环境时只改此文件，不要把地址分散写在用例和脚本中。
 
-当前环境名为 `test1-br`，包含：
+当前环境：
+
+| 环境名 | 站点地址 | WebMCP 测试页 |
+| --- | --- | --- |
+| `test1` | `https://www-test1-br.helix.city/` | 已配置：`/en/webmcp-test` |
+| `dev` | `https://matchday.helix.city/` | 尚未提供，待部署后补充 |
+
+每个环境包含：
 
 - `origin`：relay 允许注册工具的站点来源；
-- `pageUrl`：需要在浏览器中打开的 WebMCP 测试页；
-- `kind`：执行器只允许 `test` 或 `staging`，拒绝 `production`。
+- `baseUrl`：环境站点根地址；
+- `webmcpPageUrl`：需要在浏览器中打开的 WebMCP 页面；
+- `kind`：执行器只允许 `development`、`test` 或 `staging`，拒绝 `production`。
 
 本机 Codex relay 仍需配置一次；`--widget-origin` 的值必须与所选环境的 `origin` 一致：
 
@@ -29,14 +37,14 @@ args = ["-y", "@mcp-b/webmcp-local-relay@5.1.0", "--widget-origin", "https://www
 ## 执行用例
 
 ```bash
-# 执行默认用例，默认环境为 test1-br
+# 执行默认用例，默认环境为 test1
 npm test
 
 # 指定用例
 npm run test:case -- cases/WEBMCP-BET-001.json
 
 # 指定环境
-npm run test:case -- cases/WEBMCP-BET-001.json --env test1-br
+npm run test:case -- cases/WEBMCP-BET-001.json --env test1
 ```
 
 执行器会读取环境配置，确认连接的 WebMCP 页面 origin 符合预期，自动发现当前动态工具名，按顺序调用工具并执行断言。每一步会输出通过或失败；任何断言失败时进程以非零状态退出。

@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 function parseArguments(args) {
-  const values = { environment: "test1-br", caseFile: "cases/WEBMCP-BET-001.json" };
+  const values = { environment: "test1", caseFile: "cases/WEBMCP-BET-001.json" };
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === "--env") {
       values.environment = args[++index];
@@ -23,7 +23,7 @@ const environments = JSON.parse(await readFile(resolve("config/environments.json
 const environment = environments[arguments_.environment];
 
 if (!environment) throw new Error(`unknown environment: ${arguments_.environment}`);
-if (!["test", "staging"].includes(environment.kind)) {
+if (!["development", "test", "staging"].includes(environment.kind)) {
   throw new Error(`refusing to run against ${environment.kind} environment: ${arguments_.environment}`);
 }
 
@@ -134,7 +134,7 @@ try {
     arguments: {}
   })).sources;
   if (!sources.some((source) => source.origin === environment.origin)) {
-    throw new Error(`blocked: no connected WebMCP page for ${environment.origin}; open ${environment.pageUrl}`);
+    throw new Error(`blocked: no connected WebMCP page for ${environment.origin}; open ${environment.webmcpPageUrl ?? environment.baseUrl}`);
   }
   const toolName = (base) => {
     const matches = tools.filter((tool) => tool.name === base || tool.name.startsWith(`${base}_`));

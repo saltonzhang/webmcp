@@ -1,8 +1,16 @@
 {
-  "test1-br": {
+  "test1": {
     "kind": "test",
     "origin": "https://www-test1-br.helix.city",
-    "pageUrl": "https://www-test1-br.helix.city/en/webmcp-test?open_in_browser=true",
-    "description": "Helix Brazil WebMCP demo test environment"
+    "baseUrl": "https://www-test1-br.helix.city/",
+    "webmcpPageUrl": "https://www-test1-br.helix.city/en/webmcp-test?open_in_browser=true",
+    "description": "Helix Brazil test environment"
+  },
+  "dev": {
+    "kind": "development",
+    "origin": "https://matchday.helix.city",
+    "baseUrl": "https://matchday.helix.city/",
+    "webmcpPageUrl": null,
+    "description": "Helix development environment; set webmcpPageUrl after its WebMCP page is deployed"
   }
 }

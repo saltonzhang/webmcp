@@ -5,6 +5,8 @@
 - Operate only on explicitly named test or staging environments.
 - Never use state-changing WebMCP tools against a production origin.
 - Before a run, call `webmcp_list_sources` and select a connected page whose origin and route match the requested environment and use case. A page must be open in a browser so it can register tools, but it does not need to be the active tab.
+- If no matching source is connected, call `webmcp_open_page` for the requested URL, then check `webmcp_list_sources` once more. Do not invoke a browser-control skill merely to discover or operate a WebMCP page.
+- If the relay still has no matching source, report the relay connection as blocked and give the target URL. Use Browser or Playwright only when the user explicitly requests UI fallback or visual verification.
 - Once a matching source is connected, use WebMCP directly. Do not inspect DOM, take screenshots, or use Playwright unless the required WebMCP tool is absent or visual verification is explicitly requested.
 - Before a run, use read-only business tools to verify market state, account context, and balance.
 

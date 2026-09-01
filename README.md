@@ -41,6 +41,14 @@
 
 脚本不会覆盖同事已有的同名 MCP 配置；需要更新时先执行 `codex mcp remove <名称>`，再重新运行脚本。安装完成后重启 Codex。
 
+安装脚本也会部署团队的显式 `$webmcp` Skill。自然语言任务需要强制走 relay、而不允许 Browser/Playwright 兜底时，使用：
+
+```text
+$webmcp 在 test1 找 Flamengo vs Palmeiras 的 Flamengo 胜，赔率必须为 2.10，下注单设置为 100，但不要提交。
+```
+
+Skill 只在显式写出 `$webmcp` 时触发；更新仓库后重新运行 `./scripts/install-codex-mcp.sh` 即可同步其规则。
+
 执行器会先检查该用例的 `pagePath` 是否已经连接 relay；没有来源时，会调用 `webmcp_open_page` 打开目标页面并等待最多 10 秒完成工具注册。relay 会从所有已连接页面中选择匹配来源，页面无需保持为当前激活标签。环境不再指定单一 WebMCP 路由：每个用例声明自己需要验证的页面。
 
 自然语言执行也遵循同一预检：AI 先查 relay 来源；没有来源时仅使用 `webmcp_open_page` 打开目标页并重试一次。若仍没有来源，AI 会报告 relay 阻断，不会自动退回 Browser skill、DOM 读取或 Playwright。

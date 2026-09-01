@@ -1,0 +1,6 @@
+interface:
+  display_name: "WebMCP 直接执行"
+  short_description: "通过 WebMCP relay 执行自然语言业务操作"
+  default_prompt: "Use $webmcp to execute this request through WebMCP only."
+policy:
+  allow_implicit_invocation: false

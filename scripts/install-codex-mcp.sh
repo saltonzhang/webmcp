@@ -52,6 +52,8 @@ install_if_missing \
   "webmcp-local-relay" \
   npx -y "@mcp-b/webmcp-local-relay@5.1.0" --widget-origin "$ORIGINS"
 
+"$SCRIPT_DIR/install-webmcp-skill.sh"
+
 if [[ "$INSTALL_PLAYWRIGHT" == true ]]; then
   install_if_missing "playwright" npx -y "@playwright/mcp@latest"
 fi

@@ -2,8 +2,30 @@ import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const casePath = resolve(process.argv[2] ?? "cases/WEBMCP-BET-001.json");
+function parseArguments(args) {
+  const values = { environment: "test1-br", caseFile: "cases/WEBMCP-BET-001.json" };
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === "--env") {
+      values.environment = args[++index];
+    } else if (!args[index].startsWith("-")) {
+      values.caseFile = args[index];
+    } else {
+      throw new Error(`unknown argument: ${args[index]}`);
+    }
+  }
+  return values;
+}
+
+const arguments_ = parseArguments(process.argv.slice(2));
+const casePath = resolve(arguments_.caseFile);
 const testCase = JSON.parse(await readFile(casePath, "utf8"));
+const environments = JSON.parse(await readFile(resolve("config/environments.json"), "utf8"));
+const environment = environments[arguments_.environment];
+
+if (!environment) throw new Error(`unknown environment: ${arguments_.environment}`);
+if (!["test", "staging"].includes(environment.kind)) {
+  throw new Error(`refusing to run against ${environment.kind} environment: ${arguments_.environment}`);
+}
 
 function format(value) {
   return JSON.stringify(value, null, 2);
@@ -107,6 +129,13 @@ try {
   client.notify("notifications/initialized", {});
 
   const tools = (await client.request("tools/list", {})).tools;
+  const sources = unwrapToolResult(await client.request("tools/call", {
+    name: "webmcp_list_sources",
+    arguments: {}
+  })).sources;
+  if (!sources.some((source) => source.origin === environment.origin)) {
+    throw new Error(`blocked: no connected WebMCP page for ${environment.origin}; open ${environment.pageUrl}`);
+  }
   const toolName = (base) => {
     const matches = tools.filter((tool) => tool.name === base || tool.name.startsWith(`${base}_`));
     if (matches.length !== 1) {
@@ -115,6 +144,7 @@ try {
     return matches[0].name;
   };
 
+  console.log(`ENV ${arguments_.environment}: ${environment.origin}`);
   console.log(`CASE ${testCase.id}: ${testCase.name}`);
   for (const [index, step] of testCase.steps.entries()) {
     const result = await client.request("tools/call", {

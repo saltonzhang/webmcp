@@ -1,0 +1,8 @@
+{
+  "test1-br": {
+    "kind": "test",
+    "origin": "https://www-test1-br.helix.city",
+    "pageUrl": "https://www-test1-br.helix.city/en/webmcp-test?open_in_browser=true",
+    "description": "Helix Brazil WebMCP demo test environment"
+  }
+}
